@@ -1,0 +1,104 @@
+# Replit AI Prompt — GOATUP (Chat Website)
+
+Copy-paste the text below into Replit AI (or bolt.new) as your build instructions.
+
+---
+
+## PROMPT START
+
+Build a full-stack real-time chat web application called **"Goatup"** (like WhatsApp Web) with the following exact specifications. Build it in two phases as described at the end.
+
+### 1. Tech Stack
+- Frontend: React (with Tailwind CSS or plain CSS)
+- Backend: Node.js + Express
+- Real-time communication: Socket.io (WebSockets) for instant messaging, no page refresh needed
+- Database: PostgreSQL (Replit's built-in database) for permanent storage of users, groups, messages, media metadata, blocks, reports, and settings
+- File storage: Store uploaded images, voice messages, and profile pictures as files linked to each message/user
+- No third-party APIs or external paid services should be used — everything must run within Replit
+
+### 2. Authentication & Account Recovery
+- Signup/login using **Username + Password** (no email/phone required)
+- Usernames must be unique — enforce this at the database level and show a clear error ("This username is already taken") if someone tries to register an existing one
+- Passwords must be hashed with bcrypt before storing
+- Enforce strong password rules on signup: minimum 8 characters, at least 1 uppercase letter, 1 number, 1 special character. Show a live password strength indicator
+- Account recovery system:
+  - During signup, ask a security question (e.g., "What is your pet's name?") and generate a unique **Recovery Code** shown once to the user to save
+  - "Forgot Password" flow: verify via security question OR recovery code, then allow password reset
+  - "Forgot Username" flow: allow lookup via security question answer
+- Use JWT tokens or sessions so users stay logged in, and so the same account can be logged in on multiple devices at once (phone + laptop), fully synced since all data lives in the database
+
+### 3. Core Chat Features
+- **Private 1-on-1 chat**: search another user by exact username and start a direct chat
+- **Group chat**:
+  - Any user can create a group and becomes an Admin
+  - Group creator can promote other members to Admin (multiple admins allowed)
+  - Admins can add/remove members, rename the group, set a group description and group icon, and delete the group
+  - Generate a shareable **invite link** that lets someone join the group directly
+  - Regular members can send messages and leave voluntarily
+  - Setting: "Anyone can add me to groups" vs "Ask me before adding" — if the second option is chosen, an approval request must be sent before adding that user
+- **Message types**: text, images, and voice messages (record in-browser using the MediaRecorder API, upload, and play back with an audio player)
+- **Message status**: track and display sent / delivered / read (single tick / double tick / blue tick style)
+- **Delete for Me**: removes a message/photo from only the current user's view, doesn't affect the other person
+- **Unsend (Delete for Everyone)**: only available for the sender's own recent messages; removes the message from both sides and replaces it with a placeholder like "This message was deleted"
+- **Message search** within a chat
+- **Emoji reactions** on messages
+- **Message forwarding** to other chats/groups
+- **Pinned messages** in a chat/group
+- **Starred messages**: let users star important messages and view them in one combined list
+- **Mute notifications** for a specific chat or group without leaving it
+- **Custom chat wallpaper/background** per chat (solid color or uploaded image)
+- Real-time delivery via Socket.io, with graceful reconnection handling if internet drops
+- Online/offline status and "typing..." indicator
+- Full chat history stored permanently and loaded when reopening a chat
+
+### 4. Safety & Privacy Features
+- **Block users**: blocked users' messages are hidden and they cannot message the blocker
+- **Report messages/users**: reported content is saved to a separate reports table for review
+- **Privacy settings page**: toggle "Last seen" visibility (everyone / nobody) and profile picture visibility
+- Basic rate-limiting on account creation and messages to reduce spam/fake accounts
+
+### 5. Profile & Personalization
+- Profile picture upload and an "About/Status" text field
+- Dark mode toggle (light/dark theme switch)
+- "Mark as unread" toggle on any chat
+- Chat export: a "Download Chat" button that exports the conversation as a .txt file
+
+### 6. Database Schema (suggested)
+- **users**: id, username, password_hash, security_question, security_answer_hash, recovery_code_hash, profile_pic_url, about_status, last_seen_visibility, online_status, created_at
+- **groups**: id, group_name, group_description, group_icon_url, invite_link, created_at
+- **group_members**: group_id, user_id, is_admin, joined_at
+- **messages**: id, sender_id, receiver_id (nullable), group_id (nullable), message_type (text/image/voice), content_or_file_url, status (sent/delivered/read), is_deleted_for_everyone, pinned, starred_by (array), created_at
+- **message_deletions**: message_id, user_id (tracks "delete for me" per user)
+- **blocks**: blocker_id, blocked_id
+- **reports**: id, reporter_id, reported_user_id, message_id, reason, created_at
+- **group_join_requests**: group_id, user_id, status (pending/approved)
+
+### 7. UI/UX Requirements
+- Clean WhatsApp-style layout: left sidebar with chat/group list, right side with active conversation
+- Mobile-responsive design
+- Chat bubbles show sender name (in groups), content, timestamp, and status ticks
+
+### 8. Build in Two Phases
+**Phase 1 (Core Version)** — build and get this fully working and tested first:
+- Login/signup with password + recovery system
+- Private chat + group chat with admin controls
+- Text, image, and voice messages, real-time via Socket.io
+- Delete for Me, Unsend
+- Block/Report
+- Dark mode
+
+**Phase 2 (Enhancements)** — add after Phase 1 is stable:
+- Read receipts, message search, emoji reactions, forwarding, pinned/starred messages
+- Mute notifications, custom wallpaper, mark as unread
+- Chat export, invite links, multiple admins, group approval requests
+- Privacy settings page
+
+## PROMPT END
+
+---
+
+### Use karne se pehle:
+1. Pehle sirf **Phase 1** wala hissa Replit AI ko do agar chaho step-by-step banwana ho — isse debugging aasan hogi.
+2. Ya poora prompt ek saath bhi de sakte ho, Replit AI khud phases follow karega.
+3. Voice message record karte waqt microphone permission allow karni padegi.
+4. Video/voice calling isme shamil nahi hai (jaisa discuss hua tha) — future mein alag se add karwa sakte ho.
